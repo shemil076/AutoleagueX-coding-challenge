@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-import Block from '../Block';
+import Block from "../Block";
 
-import styles from './styles.module.css';
+import styles from "./styles.module.css";
+import sha256 from "sha256";
 
 /**
  * Block Chain Component
@@ -10,16 +11,24 @@ import styles from './styles.module.css';
  * A single block is already done
  */
 const BlockChain = () => {
-  // Contains all hashes
-  const [hashes, setHashes] = useState<string[]>([]); 
+  // Contains all blocks
+  const [blocks, setBlocks] = useState<BlockType[]>([]);
+
+  const blocksCount = blocks.length;
 
   /**
    * Complete this function
    * onAdd should create a new block
    */
   const onAdd = () => {
-
-  }
+    const lastBlock = blocks[blocksCount - 1];
+    const newBlock: BlockType = {
+      blockNumber: lastBlock ? lastBlock.blockNumber + 1 : 1,
+      previousHash: lastBlock ? lastBlock.hash : "0".repeat(64),
+      hash: "",
+    };
+    setBlocks((prev) => [...prev, newBlock]);
+  };
 
   /**
    * Complete this function
@@ -27,8 +36,10 @@ const BlockChain = () => {
    * Should only need to pass to the last block
    */
   const onDelete = () => {
-    
-  }
+    if (blocksCount < 1) return;
+    const remainingBlocks = blocks.slice(0, blocksCount - 1);
+    setBlocks(remainingBlocks);
+  };
 
   /**
    * Complete this function
@@ -36,8 +47,33 @@ const BlockChain = () => {
    * E.g., block 1 should update its corresponding index in the state 'hashes'
    */
   const onHash = (_block: number, hash: string) => {
-    setHashes([hash]);
-  }
+    const blockIndex = blocks.findIndex(
+      (block) => block.blockNumber === _block
+    );
+    if (blockIndex === -1) return;
+
+    // Update the hash of the block being mined
+    const updatedBlocks = [...blocks];
+    updatedBlocks[blockIndex] = { ...blocks[blockIndex], hash };
+
+    // Invalidate all following blocks
+    for (let i = blockIndex + 1; i < updatedBlocks.length; i++) {
+      const previousBlock = updatedBlocks[i - 1];
+      const currentBlock = updatedBlocks[i];
+
+      // Dummy hash avoids empty hash display in UI.
+      const dummyHash = sha256(
+        currentBlock.blockNumber + previousBlock.hash + i
+      );
+      updatedBlocks[i] = {
+        ...updatedBlocks[i],
+        previousHash: previousBlock.hash,
+        hash: dummyHash,
+      };
+    }
+
+    setBlocks(updatedBlocks);
+  };
 
   /**
    * Fix the return statement
@@ -49,11 +85,22 @@ const BlockChain = () => {
   return (
     <div className={styles.blockChain}>
       <h1>Block Chain Demo</h1>
-      <div>Total Blocks: 0</div>
-      <Block block={1} hash={hashes[0]} onHash={onHash} onDelete={onDelete}/>
-      <button type="button" onClick={() => onAdd()}>Add Block</button>
-    </div> 
+      <div>Total Blocks: {blocksCount}</div>
+      {blocks.map((block, index) => (
+        <Block
+          block={block.blockNumber}
+          hash={block.hash}
+          onHash={onHash}
+          previousHash={block.previousHash}
+          onDelete={index === blocksCount - 1 ? onDelete : undefined}
+          key={`block-${index}`}
+        />
+      ))}
+      <button type="button" onClick={() => onAdd()}>
+        Add Block
+      </button>
+    </div>
   );
-}
+};
 
 export default BlockChain;
