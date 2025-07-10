@@ -4,7 +4,7 @@
   "description": "Coding Challenge",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server --open",
+    "dev": "NODE_OPTIONS=--openssl-legacy-provider webpack-dev-server --open",
     "build": "webpack build",
     "test": "jest --maxWorkers=4"
   },

@@ -24,11 +24,19 @@ interface Props {
 const Block = ({ block, previousHash = '0'.repeat(64), hash, onHash, onDelete }: Props) => {
   const [nonce, setNonce] = useState<number>(0);
   const [data, setData] = useState('');
+  const [isValidBlock, setIsValidBlock] = useState<boolean>(true);
 
   // Every time the hash needs to be recalculated, call onHash
   useEffect(() => {
     onHash(block, sha256(block + data + previousHash + nonce))
   }, [block, data, previousHash, nonce]);
+
+  // validate the hash whenever it changes
+  useEffect(()=> {
+    if(hash){
+      setIsValidBlock(isValidHash(hash))
+    }
+  },[hash]);
 
   // Checks if hash is valid
   const isValidHash = (hash: string) => hash.substring(0, 3) === '000';
@@ -41,7 +49,7 @@ const Block = ({ block, previousHash = '0'.repeat(64), hash, onHash, onDelete }:
   };
 
   return (
-    <div className={styles.block}>
+    <div className={`${styles.block} ${isValidBlock ? styles['valid-block'] : styles['invalid-block']}`}>
       <div>
         Block <span>{block}</span>
       </div>

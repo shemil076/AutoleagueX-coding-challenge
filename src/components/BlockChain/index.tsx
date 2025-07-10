@@ -86,7 +86,8 @@ const BlockChain = () => {
     <div className={styles.blockChain}>
       <h1>Block Chain Demo</h1>
       <div>Total Blocks: {blocksCount}</div>
-      {blocks.map((block, index) => (
+      <div className={styles.blockContainer}>
+        {blocks.map((block, index) => (
         <Block
           block={block.blockNumber}
           hash={block.hash}
@@ -96,6 +97,7 @@ const BlockChain = () => {
           key={`block-${index}`}
         />
       ))}
+      </div>
       <button type="button" onClick={() => onAdd()}>
         Add Block
       </button>

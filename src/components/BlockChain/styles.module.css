@@ -2,3 +2,11 @@
   width: 100%;
   text-align: center;
 }
+
+.blockContainer {
+  margin: 24px;
+  display: flex; 
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
