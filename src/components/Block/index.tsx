@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import sha256 from 'sha256';
 import styles from './styles.module.css';
+import { ZERO_HASH } from '../../constants/constants';
 
 interface Props {
   block: number;
@@ -21,7 +22,7 @@ interface Props {
  * @param onDelete deletion of this block
  * @param onHash hash change callback
  */
-const Block = ({ block, previousHash = '0'.repeat(64), hash, onHash, onDelete }: Props) => {
+const Block = ({ block, previousHash = ZERO_HASH, hash, onHash, onDelete }: Props) => {
   const [nonce, setNonce] = useState<number>(0);
   const [data, setData] = useState('');
   const [isValidBlock, setIsValidBlock] = useState<boolean>(true);
@@ -43,6 +44,8 @@ const Block = ({ block, previousHash = '0'.repeat(64), hash, onHash, onDelete }:
 
   // Mine the block until we get a verified hash
   const onMine = (i = 1) => {
+    // Prevent recalculating the hash if it's already valid.
+    if (hash && isValidHash(hash)) return;
     while (!isValidHash(sha256(block + data + previousHash + i))) i++;
     onHash(block, sha256(block + data + previousHash + i));
     setNonce(i)

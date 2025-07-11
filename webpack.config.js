@@ -10,7 +10,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx$/,
+        test: /\.tsx?$/,
         loader: 'babel-loader',
         options: {
           presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
@@ -33,7 +33,7 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.tsx', '.js'],
+    extensions: ['.tsx', '.js', '.ts'],
   },
   devServer: {
     static: {
