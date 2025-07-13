@@ -3,6 +3,8 @@ import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event'
 
 import BlockChain from './';
+import { act, renderHook } from '@testing-library/react-hooks';
+import { useBlockChain } from '../../hooks/useBlockChain';
 
 /**
  * Block Chain Testing
@@ -68,4 +70,40 @@ it('On delete works correctly', () => {
   expect(getByText("Total Blocks: 2")).toBeInTheDocument();
   userEvent.click(getByText('Delete'));
   expect(getByText("Total Blocks: 1")).toBeInTheDocument();
+});
+
+
+// Test cases related to the useBlockChain hook.
+it('Should be initialize with zero blocks',() => {
+  const { result } = renderHook(() => useBlockChain());
+  expect(result.current.state.blocks.length).toBe(0);
+  expect(result.current.blockCount).toBe(0);
+});
+
+it('Should add a new block', () => {
+  const { result } = renderHook(() => useBlockChain());
+
+  act(() => {
+    result.current.onAdd();
+  });
+
+  expect(result.current.state.blocks.length).toBe(1);
+  expect(result.current.blockCount).toBe(1);
+});
+
+it('Should delete the last block', () => {
+  const { result } = renderHook(()=> useBlockChain());
+
+  act(() => {
+    result.current.onAdd();
+    result.current.onAdd();
+  });
+
+  expect(result.current.blockCount).toBe(2);
+
+  act(() => {
+    result.current.onDelete();
+  });
+  
+  expect(result.current.blockCount).toBe(1);
 });
